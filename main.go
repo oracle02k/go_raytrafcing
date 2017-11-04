@@ -3,28 +3,36 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 
 	"github.com/oracle02k/go_raytracing/math3d"
 	"github.com/oracle02k/go_raytracing/util3d"
 )
 
-func hitSphere(center math3d.Vec3, radius float64, r *util3d.Ray) bool {
+func hitSphere(center math3d.Vec3, radius float64, r *util3d.Ray) float64 {
 	oc := r.Origin().Sub(center)
 	a := math3d.Vec3Dot(r.Direction(), r.Direction())
 	b := 2.0 * math3d.Vec3Dot(oc, r.Direction())
 	c := math3d.Vec3Dot(oc, oc) - radius*radius
 	discriminant := b*b - 4*a*c
-	return (discriminant >= 0)
+
+	if discriminant < 0 {
+		return -1.0
+	}
+
+	return (-b - math.Sqrt(discriminant)) / (2.0 * a)
 }
 
 func color(r *util3d.Ray) math3d.Vec3 {
-	if hitSphere(math3d.NewVec3(0, 0, -1), 0.5, r) {
-		return math3d.NewVec3(1, 0, 0)
+	t := hitSphere(math3d.NewVec3(0, 0, -1), 0.5, r)
+	if t > 0.0 {
+		n := math3d.MakeUnitVector(r.PointAtParameter(t).Sub(math3d.NewVec3(0, 0, -1)))
+		return math3d.NewVec3(n.X()+1, n.Y()+1, n.Z()+1).Scale(0.5)
 	}
 
 	unitDirection := math3d.MakeUnitVector(r.Direction())
-	t := 0.5 * (unitDirection.Y() + 1.0)
+	t = 0.5 * (unitDirection.Y() + 1.0)
 	return math3d.NewVec3(1.0, 1.0, 1.0).Scale(1.0 - t).Add(math3d.NewVec3(0.5, 0.7, 1.0).Scale(t))
 }
 
