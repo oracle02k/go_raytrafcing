@@ -8,10 +8,11 @@ import (
 
 	"github.com/oracle02k/go_raytracing/math3d"
 	"github.com/oracle02k/go_raytracing/util3d"
+	"github.com/oracle02k/go_raytracing/hitable"
 )
 
-func color(r *util3d.Ray, world *util3d.HitableList) math3d.Vec3 {
-	rec := &util3d.HitRecord{}
+func color(r *util3d.Ray, world *hitable.List) math3d.Vec3 {
+	rec := &hitable.Record{}
 	if world.Hit(r, 0.0, math.MaxFloat64, rec) {
 		normal := rec.Normal()
 		return math3d.NewVec3(normal.X()+1.0, normal.Y()+1.0, normal.Z()+1.0).Scale(0.5)
@@ -36,9 +37,9 @@ func main() {
 	vertical := math3d.NewVec3(0.0, 2.0, 0.0)
 	origin := math3d.NewVec3(0.0, 0.0, 0.0)
 
-	world := util3d.NewHitableList()
-	world.AddHitable(util3d.NewSphere(math3d.NewVec3(0, 0, -1), 0.5))
-	world.AddHitable(util3d.NewSphere(math3d.NewVec3(0, -100.5, -1), 100))
+	world := hitable.NewList()
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, 0, -1), 0.5))
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, -100.5, -1), 100))
 
 	for j := ny - 1; j >= 0; j-- {
 		for i := 0; i < nx; i++ {

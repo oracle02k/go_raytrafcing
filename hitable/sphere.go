@@ -1,9 +1,10 @@
-package util3d
+package hitable
 
 import (
 	"math"
 
 	"github.com/oracle02k/go_raytracing/math3d"
+	"github.com/oracle02k/go_raytracing/util3d"
 )
 
 type Sphere struct {
@@ -18,7 +19,7 @@ func NewSphere(center math3d.Vec3, radius float64) *Sphere {
 	}
 }
 
-func (s *Sphere) Hit(r *Ray, t_min, t_max float64, rec *HitRecord) bool {
+func (s *Sphere) Hit(r *util3d.Ray, t_min, t_max float64, rec *Record) bool {
 	oc := r.Origin().Sub(s.center)
 	a := math3d.Vec3Dot(r.Direction(), r.Direction())
 	b := math3d.Vec3Dot(oc, r.Direction())
