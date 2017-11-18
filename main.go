@@ -9,6 +9,7 @@ import (
 	"github.com/oracle02k/go_raytracing/hitable"
 	"github.com/oracle02k/go_raytracing/math3d"
 	"github.com/oracle02k/go_raytracing/util3d"
+	"math/rand"
 )
 
 func color(r *util3d.Ray, world *hitable.List) math3d.Vec3 {
@@ -27,6 +28,7 @@ func main() {
 
 	nx := 200
 	ny := 100
+	ns := 100
 
 	writeFile, _ := os.OpenFile("test.ppm", os.O_WRONLY|os.O_CREATE, 0600)
 	writer := bufio.NewWriter(writeFile)
@@ -40,18 +42,23 @@ func main() {
 
 	for j := ny - 1; j >= 0; j-- {
 		for i := 0; i < nx; i++ {
-			u := float64(i) / float64(nx)
-			v := float64(j) / float64(ny)
 
-			r := camera.Ray(u, v)
-			col := color(r, world).Scale(255.99)
+			col := math3d.NewVec3(0, 0, 0)
+			for s := 0; s < ns; s++ {
+				u := (float64(i) + rand.Float64()) / float64(nx);
+				v := (float64(j) + rand.Float64()) / float64(ny);
+				r := camera.Ray(u, v)
+				col = col.Add(color(r, world));
+			}
 
+			col = col.Div(float64(ns)).Scale(255.99)
 			ir := int32(col.R())
 			ig := int32(col.G())
 			ib := int32(col.B())
 			writer.WriteString(fmt.Sprintf("%d %d %d\n", ir, ig, ib))
 		}
 	}
+
 	writer.Flush()
 	writeFile.Close()
 }
