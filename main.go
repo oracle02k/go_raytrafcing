@@ -10,29 +10,15 @@ import (
 	"github.com/oracle02k/go_raytracing/util3d"
 )
 
-func hitSphere(center math3d.Vec3, radius float64, r *util3d.Ray) float64 {
-	oc := r.Origin().Sub(center)
-	a := math3d.Vec3Dot(r.Direction(), r.Direction())
-	b := 2.0 * math3d.Vec3Dot(oc, r.Direction())
-	c := math3d.Vec3Dot(oc, oc) - radius*radius
-	discriminant := b*b - 4*a*c
-
-	if discriminant < 0 {
-		return -1.0
+func color(r *util3d.Ray, world *util3d.HitableList) math3d.Vec3 {
+	rec := &util3d.HitRecord{}
+	if world.Hit(r, 0.0, math.MaxFloat64, rec) {
+		normal := rec.Normal()
+		return math3d.NewVec3(normal.X()+1.0, normal.Y()+1.0, normal.Z()+1.0).Scale(0.5)
 	}
 
-	return (-b - math.Sqrt(discriminant)) / (2.0 * a)
-}
-
-func color(r *util3d.Ray) math3d.Vec3 {
-	t := hitSphere(math3d.NewVec3(0, 0, -1), 0.5, r)
-	if t > 0.0 {
-		n := math3d.MakeUnitVector(r.PointAtParameter(t).Sub(math3d.NewVec3(0, 0, -1)))
-		return math3d.NewVec3(n.X()+1, n.Y()+1, n.Z()+1).Scale(0.5)
-	}
-
-	unitDirection := math3d.MakeUnitVector(r.Direction())
-	t = 0.5 * (unitDirection.Y() + 1.0)
+	unit := math3d.MakeUnitVector(r.Direction())
+	t := 0.5 * (unit.Y() + 1.0)
 	return math3d.NewVec3(1.0, 1.0, 1.0).Scale(1.0 - t).Add(math3d.NewVec3(0.5, 0.7, 1.0).Scale(t))
 }
 
@@ -50,6 +36,10 @@ func main() {
 	vertical := math3d.NewVec3(0.0, 2.0, 0.0)
 	origin := math3d.NewVec3(0.0, 0.0, 0.0)
 
+	world := util3d.NewHitableList()
+	world.AddHitable(util3d.NewSphere(math3d.NewVec3(0, 0, -1), 0.5))
+	world.AddHitable(util3d.NewSphere(math3d.NewVec3(0, -100.5, -1), 100))
+
 	for j := ny - 1; j >= 0; j-- {
 		for i := 0; i < nx; i++ {
 			u := float64(i) / float64(nx)
@@ -57,7 +47,7 @@ func main() {
 
 			direction := lowerLeftCenter.Add(math3d.Vec3Scale(horizontal, u)).Add(math3d.Vec3Scale(vertical, v))
 			r := util3d.NewRay(origin, direction)
-			col := color(r).Scale(255.99)
+			col := color(r, world).Scale(255.99)
 
 			ir := int32(col.R())
 			ig := int32(col.G())
