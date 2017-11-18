@@ -6,9 +6,9 @@ import (
 	"math"
 	"os"
 
+	"github.com/oracle02k/go_raytracing/hitable"
 	"github.com/oracle02k/go_raytracing/math3d"
 	"github.com/oracle02k/go_raytracing/util3d"
-	"github.com/oracle02k/go_raytracing/hitable"
 )
 
 func color(r *util3d.Ray, world *hitable.List) math3d.Vec3 {
@@ -32,22 +32,18 @@ func main() {
 	writer := bufio.NewWriter(writeFile)
 	writer.WriteString(fmt.Sprintf("P3\n%d %d\n255\n", nx, ny))
 
-	lowerLeftCenter := math3d.NewVec3(-2.0, -1.0, -1.0)
-	horizontal := math3d.NewVec3(4.0, 0.0, 0.0)
-	vertical := math3d.NewVec3(0.0, 2.0, 0.0)
-	origin := math3d.NewVec3(0.0, 0.0, 0.0)
-
 	world := hitable.NewList()
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, 0, -1), 0.5))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, -100.5, -1), 100))
+
+	camera := util3d.NewCamera()
 
 	for j := ny - 1; j >= 0; j-- {
 		for i := 0; i < nx; i++ {
 			u := float64(i) / float64(nx)
 			v := float64(j) / float64(ny)
 
-			direction := lowerLeftCenter.Add(math3d.Vec3Scale(horizontal, u)).Add(math3d.Vec3Scale(vertical, v))
-			r := util3d.NewRay(origin, direction)
+			r := camera.Ray(u, v)
 			col := color(r, world).Scale(255.99)
 
 			ir := int32(col.R())
