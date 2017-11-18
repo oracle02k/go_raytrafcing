@@ -12,11 +12,25 @@ import (
 	"math/rand"
 )
 
+func randomInUnitSphere() math3d.Vec3 {
+	p := math3d.NewVec3(0, 0, 0)
+	for {
+		p = math3d.NewVec3(rand.Float64(), rand.Float64(), rand.Float64()).
+			Scale(2).
+			Sub(math3d.NewVec3(1, 1, 1))
+
+		if p.SquaredLength() < 1.0 {
+			break
+		}
+	}
+	return p
+}
+
 func color(r *util3d.Ray, world *hitable.List) math3d.Vec3 {
 	rec := &hitable.Record{}
-	if world.Hit(r, 0.0, math.MaxFloat64, rec) {
-		normal := rec.Normal()
-		return math3d.NewVec3(normal.X()+1.0, normal.Y()+1.0, normal.Z()+1.0).Scale(0.5)
+	if world.Hit(r, 0.001, math.MaxFloat64, rec) {
+		target := rec.P().Add(rec.Normal()).Add(randomInUnitSphere())
+		return color(util3d.NewRay(rec.P(), target.Sub(rec.P())), world).Scale(0.5)
 	}
 
 	unit := math3d.MakeUnitVector(r.Direction())
@@ -51,7 +65,8 @@ func main() {
 				col = col.Add(color(r, world));
 			}
 
-			col = col.Div(float64(ns)).Scale(255.99)
+			col = col.Div(float64(ns))
+			col = math3d.NewVec3(math.Sqrt(col.X()), math.Sqrt(col.Y()), math.Sqrt(col.Z())).Scale(255.99)
 			ir := int32(col.R())
 			ig := int32(col.G())
 			ib := int32(col.B())
