@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"math/rand"
 
 	"github.com/oracle02k/go_raytracing/hitable"
 	"github.com/oracle02k/go_raytracing/math3d"
 	"github.com/oracle02k/go_raytracing/util3d"
-	"math/rand"
+	"github.com/oracle02k/go_raytracing/material"
 )
 
 func randomInUnitSphere() math3d.Vec3 {
@@ -26,11 +27,17 @@ func randomInUnitSphere() math3d.Vec3 {
 	return p
 }
 
-func color(r *util3d.Ray, world *hitable.List) math3d.Vec3 {
-	rec := &hitable.Record{}
-	if world.Hit(r, 0.001, math.MaxFloat64, rec) {
-		target := rec.P().Add(rec.Normal()).Add(randomInUnitSphere())
-		return color(util3d.NewRay(rec.P(), target.Sub(rec.P())), world).Scale(0.5)
+func color(r *util3d.Ray, world *hitable.List, depth int32) math3d.Vec3 {
+	hit, hitable, record := world.Hit(r, 0.001, math.MaxFloat64)
+	if hit {
+		if depth < 50 {
+			result, attenuation, scattered := hitable.Material().Scatter(r, record)
+			if result {
+				return math3d.Vec3Mul(attenuation, color(scattered, world, depth+1))
+			}
+			return math3d.NewVec3(0, 0, 0);
+		}
+		return math3d.NewVec3(0, 0, 0);
 	}
 
 	unit := math3d.MakeUnitVector(r.Direction())
@@ -49,8 +56,10 @@ func main() {
 	writer.WriteString(fmt.Sprintf("P3\n%d %d\n255\n", nx, ny))
 
 	world := hitable.NewList()
-	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, 0, -1), 0.5))
-	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, -100.5, -1), 100))
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, 0, -1), 0.5, material.NewLambert(math3d.NewVec3(0.8, 0.3, 0.3))))
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, -100.5, -1), 100, material.NewLambert(math3d.NewVec3(0.8, 0.8, 0.0))))
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.6, 0.2))))
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(-1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.8, 0.8))))
 
 	camera := util3d.NewCamera()
 
@@ -62,7 +71,7 @@ func main() {
 				u := (float64(i) + rand.Float64()) / float64(nx);
 				v := (float64(j) + rand.Float64()) / float64(ny);
 				r := camera.Ray(u, v)
-				col = col.Add(color(r, world));
+				col = col.Add(color(r, world, 0));
 			}
 
 			col = col.Div(float64(ns))
