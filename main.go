@@ -58,8 +58,8 @@ func main() {
 	world := hitable.NewList()
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, 0, -1), 0.5, material.NewLambert(math3d.NewVec3(0.8, 0.3, 0.3))))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, -100.5, -1), 100, material.NewLambert(math3d.NewVec3(0.8, 0.8, 0.0))))
-	world.AddHitable(hitable.NewSphere(math3d.NewVec3(1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.6, 0.2))))
-	world.AddHitable(hitable.NewSphere(math3d.NewVec3(-1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.8, 0.8))))
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.6, 0.2),1.0)))
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(-1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.8, 0.8),0.3)))
 
 	camera := util3d.NewCamera()
 
