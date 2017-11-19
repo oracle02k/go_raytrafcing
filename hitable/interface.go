@@ -7,6 +7,6 @@ import (
 )
 
 type Interface interface {
-	Hit(r *util3d.Ray, t_min, t_max float64) (bool, Interface, *hit.Record)
+	Hit(r *util3d.Ray, t_min, t_max float64) (bool, *hit.Record)
 	Material() material.Interface
 }

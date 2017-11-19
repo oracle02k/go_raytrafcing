@@ -18,17 +18,17 @@ func (l *List) AddHitable(hitable Interface) {
 }
 
 func (l *List) Hit(r *util3d.Ray, t_min, t_max float64) (bool, Interface, *hit.Record) {
-	var hitable Interface = nil
-	var record *hit.Record = nil
+	var hitable Interface
+	var record *hit.Record
 	hitAnything  := false
 
 	closetSoFar := t_max
 	for i := 0; i < len(l.hitables); i++ {
-		result, h, r := l.hitables[i].Hit(r, t_min, closetSoFar)
+		result, r := l.hitables[i].Hit(r, t_min, closetSoFar)
 		if result {
-			closetSoFar = r.T()
-			hitable = h
 			record = r
+			closetSoFar = r.T()
+			hitable = l.hitables[i]
 			hitAnything = true
 		}
 	}
