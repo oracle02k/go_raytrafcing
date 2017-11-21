@@ -83,6 +83,16 @@ func (v Vec3) Div(div float64) Vec3 {
 	}
 }
 
+func (v Vec3) Minus() Vec3 {
+	return Vec3{
+		e: [3]float64{
+			v.e[0] * -1,
+			v.e[1] * -1,
+			v.e[2] * -1,
+		},
+	}
+}
+
 func MakeUnitVector(v Vec3) Vec3 {
 	l := math.Sqrt(v.e[0]*v.e[0] + v.e[1]*v.e[1] + v.e[2]*v.e[2])
 	k := 1.0 / l

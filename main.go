@@ -47,9 +47,9 @@ func color(r *util3d.Ray, world *hitable.List, depth int32) math3d.Vec3 {
 
 func main() {
 
-	nx := 200
-	ny := 100
-	ns := 100
+	nx := 400
+	ny := 200
+	ns := 200
 
 	writeFile, _ := os.OpenFile("test.ppm", os.O_WRONLY|os.O_CREATE, 0600)
 	writer := bufio.NewWriter(writeFile)
@@ -59,7 +59,7 @@ func main() {
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, 0, -1), 0.5, material.NewLambert(math3d.NewVec3(0.8, 0.3, 0.3))))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, -100.5, -1), 100, material.NewLambert(math3d.NewVec3(0.8, 0.8, 0.0))))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.6, 0.2),1.0)))
-	world.AddHitable(hitable.NewSphere(math3d.NewVec3(-1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.8, 0.8),0.3)))
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(-1, 0, -1), 0.5, material.NewDielectric(1.5)))
 
 	camera := util3d.NewCamera()
 
