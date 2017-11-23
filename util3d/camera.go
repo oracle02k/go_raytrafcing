@@ -2,6 +2,7 @@ package util3d
 
 import (
 	"github.com/oracle02k/go_raytracing/math3d"
+	"math"
 )
 
 type Camera struct {
@@ -11,12 +12,16 @@ type Camera struct {
 	vertical        math3d.Vec3
 }
 
-func NewCamera() *Camera {
+func NewCamera(vfov, aspect float64) *Camera {
+	theta := vfov * math.Pi / 180
+	halfHeight := math.Tan(theta / 2)
+	halfWidth := aspect * halfHeight
+
 	return &Camera{
 		origin:          math3d.NewVec3(0.0, 0.0, 0.0),
-		lowerLeftCorner: math3d.NewVec3(-2.0, -1.0, -1.0),
-		horizontal:      math3d.NewVec3(4.0, 0.0, 0.0),
-		vertical:        math3d.NewVec3(0.0, 2.0, 0.0),
+		lowerLeftCorner: math3d.NewVec3(-halfWidth, -halfHeight, -1.0),
+		horizontal:      math3d.NewVec3(2*halfWidth, 0.0, 0.0),
+		vertical:        math3d.NewVec3(0.0, 2*halfHeight, 0.0),
 	}
 }
 

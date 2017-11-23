@@ -47,21 +47,28 @@ func color(r *util3d.Ray, world *hitable.List, depth int32) math3d.Vec3 {
 
 func main() {
 
-	nx := 400
-	ny := 200
-	ns := 200
+	nx := 200
+	ny := 100
+	ns := 100
 
 	writeFile, _ := os.OpenFile("test.ppm", os.O_WRONLY|os.O_CREATE, 0600)
 	writer := bufio.NewWriter(writeFile)
 	writer.WriteString(fmt.Sprintf("P3\n%d %d\n255\n", nx, ny))
 
+	R := math.Cos(math.Pi / 4.0)
+
 	world := hitable.NewList()
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(-R, 0, -1), R, material.NewLambert(math3d.NewVec3(0,0,1))))
+	world.AddHitable(hitable.NewSphere(math3d.NewVec3(R, 0, -1), R, material.NewLambert(math3d.NewVec3(1,0,0))))
+
+	/*
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, 0, -1), 0.5, material.NewLambert(math3d.NewVec3(0.8, 0.3, 0.3))))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, -100.5, -1), 100, material.NewLambert(math3d.NewVec3(0.8, 0.8, 0.0))))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.6, 0.2),1.0)))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(-1, 0, -1), 0.5, material.NewDielectric(1.5)))
+	*/
 
-	camera := util3d.NewCamera()
+	camera := util3d.NewCamera(90, float64(nx)/float64(ny))
 
 	for j := ny - 1; j >= 0; j-- {
 		for i := 0; i < nx; i++ {
