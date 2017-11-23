@@ -49,7 +49,7 @@ func main() {
 
 	nx := 400
 	ny := 200
-	ns := 100
+	ns := 20
 
 	writeFile, _ := os.OpenFile("test.ppm", os.O_WRONLY|os.O_CREATE, 0600)
 	writer := bufio.NewWriter(writeFile)
@@ -61,13 +61,19 @@ func main() {
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.6, 0.2), 1.0)))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(-1, 0, -1), 0.5, material.NewDielectric(1.5)))
 
+	from := math3d.NewVec3(3, 3, 2);
+	at := math3d.NewVec3(0, 0, -1);
+	distToFocus := from.Sub(at).Length()
+	aperture := 2.0
 	camera := util3d.NewCamera(
-		math3d.NewVec3(0, 1, 1),
-		math3d.NewVec3(0, 0, -1),
+		from,
+		at,
 		math3d.NewVec3(0, 1, 0),
-		30,
+		20,
 		float64(nx)/float64(ny),
-	)
+		aperture,
+		distToFocus,
+	);
 
 	for j := ny - 1; j >= 0; j-- {
 		for i := 0; i < nx; i++ {
