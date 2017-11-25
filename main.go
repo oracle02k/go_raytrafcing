@@ -47,24 +47,27 @@ func color(r *util3d.Ray, world *hitable.List, depth int32) math3d.Vec3 {
 
 func main() {
 
-	nx := 400
-	ny := 200
-	ns := 20
+	nx := 200
+	ny := 100
+	ns := 100
 
 	writeFile, _ := os.OpenFile("test.ppm", os.O_WRONLY|os.O_CREATE, 0600)
 	writer := bufio.NewWriter(writeFile)
 	writer.WriteString(fmt.Sprintf("P3\n%d %d\n255\n", nx, ny))
 
+	/*
 	world := hitable.NewList()
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, 0, -1), 0.5, material.NewLambert(math3d.NewVec3(0.8, 0.3, 0.3))))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(0, -100.5, -1), 100, material.NewLambert(math3d.NewVec3(0.8, 0.8, 0.0))))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(1, 0, -1), 0.5, material.NewMetal(math3d.NewVec3(0.8, 0.6, 0.2), 1.0)))
 	world.AddHitable(hitable.NewSphere(math3d.NewVec3(-1, 0, -1), 0.5, material.NewDielectric(1.5)))
+	*/
+	world := randomScene()
 
-	from := math3d.NewVec3(3, 3, 2);
+	from := math3d.NewVec3(10, 2, 3);
 	at := math3d.NewVec3(0, 0, -1);
 	distToFocus := from.Sub(at).Length()
-	aperture := 2.0
+	aperture := 0.5
 	camera := util3d.NewCamera(
 		from,
 		at,
@@ -74,7 +77,6 @@ func main() {
 		aperture,
 		distToFocus,
 	);
-
 	for j := ny - 1; j >= 0; j-- {
 		for i := 0; i < nx; i++ {
 
@@ -97,4 +99,57 @@ func main() {
 
 	writer.Flush()
 	writeFile.Close()
+}
+
+func randomScene() *hitable.List {
+
+	list := hitable.NewList()
+	list.AddHitable(hitable.NewSphere(math3d.NewVec3(0, -1000, 0), 1000, material.NewLambert(math3d.NewVec3(0.5,0.5, 0.5))))
+
+	for a := -11; a < 11; a++ {
+		for b := -11; b < 11; b++ {
+			chooseMat := rand.Float64()
+			center := math3d.NewVec3(float64(a)+0.9*rand.Float64(), 0.2, float64(b)+0.9*rand.Float64())
+			if center.Sub(math3d.NewVec3(4, 0.2, 0)).Length() > 0.9 {
+				if chooseMat < 0.8 {
+					list.AddHitable(
+						hitable.NewSphere(
+							center,
+							0.2,
+							material.NewLambert(
+								math3d.NewVec3(
+									rand.Float64()*rand.Float64(),
+									rand.Float64()*rand.Float64(),
+									rand.Float64()*rand.Float64(),
+								),
+							),
+						),
+					)
+				} else if chooseMat < 0.95 {
+					list.AddHitable(
+						hitable.NewSphere(
+							center,
+							0.2,
+							material.NewMetal(
+								math3d.NewVec3(
+									0.5*(1+rand.Float64()),
+									0.5*(1+rand.Float64()),
+									0.5*(1+rand.Float64()),
+								),
+								0.5*rand.Float64(),
+							),
+						),
+					)
+				} else {
+					list.AddHitable(hitable.NewSphere(center, 0.2, material.NewDielectric(1.5)))
+				}
+			}
+		}
+	}
+
+	list.AddHitable(hitable.NewSphere(math3d.NewVec3(0,1,0), 1.0, material.NewDielectric(1.5)))
+	list.AddHitable(hitable.NewSphere(math3d.NewVec3(-4.0, 1.0, 0.0), 1.0, material.NewLambert(math3d.NewVec3(0.4, 0.2, 0.1))))
+	list.AddHitable(hitable.NewSphere(math3d.NewVec3(4.0,1.0,0.0), 1.0, material.NewMetal(math3d.NewVec3(0.7,0.6,0.5), 0.0)))
+
+	return list
 }
